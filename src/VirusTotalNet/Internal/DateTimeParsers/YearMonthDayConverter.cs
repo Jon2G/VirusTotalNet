@@ -1,7 +1,7 @@
-using System;
-using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Globalization;
 using VirusTotalNet.Exceptions;
 using VirusTotalNet.Helpers;
 
@@ -26,6 +26,9 @@ namespace VirusTotalNet.Internal.DateTimeParsers
 
             if (!(reader.Value is string stringVal))
                 throw new InvalidDateTimeException("Invalid date/time from VirusTotal. Tried to parse: " + reader.Value);
+
+            if (string.IsNullOrEmpty(stringVal))
+                return DateTime.MinValue;
 
             if (!ResourcesHelper.IsNumeric(stringVal))
                 return DateTime.MinValue;
