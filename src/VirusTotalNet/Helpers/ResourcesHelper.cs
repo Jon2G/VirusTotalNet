@@ -80,6 +80,25 @@ namespace VirusTotalNet.Helpers
             }
         }
 
+        public static ResourceType IdentifyResourceType(ref string resource)
+        {
+            if (IsValidMD5(resource))
+                return ResourceType.MD5;
+            if (IsValidSHA1(resource))
+                return ResourceType.SHA1;
+            if (IsValidSHA256(resource))
+                return ResourceType.SHA256;
+            if (IsValidScanId(resource))
+                return ResourceType.ScanId;
+            if (IsValidURL(resource, out resource))
+                return ResourceType.URL;
+            if (IsValidIP(resource, out resource))
+                return ResourceType.IP;
+            if (IsValidDomain(resource, out resource))
+                return ResourceType.Domain;
+            return ResourceType.AnyType;
+
+        }
         public static string ValidateResourcea(string resource, ResourceType type)
         {
             if (string.IsNullOrWhiteSpace(resource))

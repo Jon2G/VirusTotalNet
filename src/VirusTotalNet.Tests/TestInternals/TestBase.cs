@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace VirusTotalNet.Tests.TestInternals
 {
@@ -31,7 +31,7 @@ namespace VirusTotalNet.Tests.TestInternals
             settings.ContractResolver = new FailingContractResolver();
             settings.Error = Error;
 
-            VirusTotal = new VirusTotal("0abdc2040d8245f04642f0e4bcc99daac2ebf6806381d7b19cb1ae4eb5687369", settings);
+            VirusTotal = new v2.VirusTotal("0abdc2040d8245f04642f0e4bcc99daac2ebf6806381d7b19cb1ae4eb5687369", settings);
             VirusTotal.UserAgent = "VirusTotal.NET unit tests";
             VirusTotal.UseTLS = false;
 
@@ -42,7 +42,7 @@ namespace VirusTotalNet.Tests.TestInternals
                 Thread.Sleep(15000);
         }
 
-        protected VirusTotal VirusTotal { get; }
+        protected v2.VirusTotal VirusTotal { get; }
 
         protected bool ThrowOnMissingContract { get; set; }
 

@@ -11,7 +11,7 @@ namespace VirusTotalNet.Tests
         [Fact]
         public async Task UnauthorizedScan()
         {
-            VirusTotal virusTotal = new VirusTotal("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); //64 characters
+            VirusTotalNet.v2.VirusTotal virusTotal = new VirusTotalNet.v2.VirusTotal("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); //64 characters
             await Assert.ThrowsAsync<AccessDeniedException>(async () => await virusTotal.GetFileReportAsync(TestData.KnownHashes.First()));
         }
 

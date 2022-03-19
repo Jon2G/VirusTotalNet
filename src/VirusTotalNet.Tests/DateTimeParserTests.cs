@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using VirusTotalNet.Objects;
-using VirusTotalNet.Results;
 using VirusTotalNet.Tests.TestInternals;
 using Xunit;
 
@@ -13,7 +12,7 @@ namespace VirusTotalNet.Tests
         [Fact]
         public void YearMonthDayConverterTest()
         {
-            FileReport fileReport = new FileReport
+            VirusTotalNet.Results.v2.FileReport fileReport = new VirusTotalNet.Results.v2.FileReport
             {
                 ScanDate = new DateTime(2017, 08, 10),
                 Scans = new Dictionary<string, ScanEngine>()

@@ -1,12 +1,12 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using VirusTotalNet.Objects;
 using VirusTotalNet.ResponseCodes;
 
 namespace VirusTotalNet.Results
 {
-    public class FileReport
+    public abstract class FileReport
     {
         /// <summary>
         /// MD5 hash of the resource.
@@ -37,8 +37,7 @@ namespace VirusTotalNet.Results
         /// <summary>
         /// Contains the scan id for this result.
         /// </summary>
-        [JsonProperty("scan_id")]
-        public string ScanId { get; set; }
+        public virtual string ScanId { get; set; }
 
         /// <summary>
         /// The scan results from each engine.
@@ -71,5 +70,10 @@ namespace VirusTotalNet.Results
         /// </summary>
         [JsonProperty("verbose_msg")]
         public string VerboseMsg { get; set; }
+        /// <summary>
+        /// Contains the scan type for this result.
+        /// </summary>
+        [JsonProperty("type")]
+        public string Type { get; set; }
     }
 }
