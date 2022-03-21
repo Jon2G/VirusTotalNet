@@ -39,7 +39,7 @@ namespace VirusTotalNet.v2
         /// </summary>
         /// <param name="stream">The file to scan</param>
         /// <param name="filename">The filename of the file</param>
-        public override Task<ScanResult> ScanFileAsync(Stream stream, string filename)
+        public override async Task<ScanResult> ScanFileAsync(Stream stream, string filename)
         {
             ValidateScanFileArguments(stream, FileSizeLimit, filename);
 
@@ -48,7 +48,7 @@ namespace VirusTotalNet.v2
             multi.Add(CreateFileContent(stream, filename));
 
             //https://www.virustotal.com/vtapi/v2/file/scan
-            return GetResponse<ScanResult>("file/scan", HttpMethod.Post, multi);
+            return await GetResponse<VirusTotalNet.Results.v2.ScanResult>("file/scan", HttpMethod.Post, multi);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace VirusTotalNet.v2
             MultipartFormDataContent multi = new MultipartFormDataContent();
             multi.Add(CreateFileContent(stream, filename, false)); //The big file upload API does not like it when multi-part uploads contain the size field
 
-            return await GetResponse<ScanResult>(uploadUrlObj.UploadUrl, HttpMethod.Post, multi);
+            return await GetResponse<VirusTotalNet.Results.v2.ScanResult>(uploadUrlObj.UploadUrl, HttpMethod.Post, multi);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace VirusTotalNet.v2
         /// Note: Before requesting a rescan you should retrieve the latest report on the file.
         /// </summary>
         /// <param name="resource">A hash of the file. It can be an MD5, SHA1 or SHA256</param>
-        public override Task<RescanResult> RescanFileAsync(string resource)
+        public override async Task<RescanResult> RescanFileAsync(string resource)
         {
             resource = ResourcesHelper.ValidateResourcea(resource, ResourceType.AnyHash);
 
@@ -91,7 +91,7 @@ namespace VirusTotalNet.v2
             values.Add("resource", resource);
 
             //https://www.virustotal.com/vtapi/v2/file/rescan
-            return GetResponse<RescanResult>("file/rescan", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponse<VirusTotalNet.Results.v2.RescanResult>("file/rescan", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace VirusTotalNet.v2
         /// Note: You can only request a maximum of 25 rescans at the time.
         /// </summary>
         /// <param name="resourceList">a MD5, SHA1 or SHA256 of the files. You can also specify list made up of a combination of any of the three allowed hashes (up to 25 items), this allows you to perform a batch request with one single call.</param>
-        public override Task<IEnumerable<RescanResult>> RescanFilesAsync(IEnumerable<string> resourceList)
+        public override async Task<IEnumerable<RescanResult>> RescanFilesAsync(IEnumerable<string> resourceList)
         {
             resourceList = ResourcesHelper.ValidateResourcea(resourceList, ResourceType.AnyHash);
 
@@ -116,7 +116,7 @@ namespace VirusTotalNet.v2
             values.Add("resource", string.Join(",", resources));
 
             //https://www.virustotal.com/vtapi/v2/file/rescan
-            return GetResponses<RescanResult>("file/rescan", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponses<VirusTotalNet.Results.v2.RescanResult>("file/rescan", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace VirusTotalNet.v2
         /// Note: This does not send the files to VirusTotal. It hashes the file and sends that instead.
         /// </summary>
         /// <param name="resource">The resource (MD5, SHA1 or SHA256) you wish to get a report on.</param>
-        public override Task<FileReport> GetFileReportAsync(string resource)
+        public override async Task<FileReport> GetFileReportAsync(string resource)
         {
             resource = ResourcesHelper.ValidateResourcea(resource, ResourceType.AnyHash | ResourceType.ScanId);
 
@@ -133,7 +133,7 @@ namespace VirusTotalNet.v2
             values.Add("resource", resource);
 
             //https://www.virustotal.com/vtapi/v2/file/report
-            return GetResponse<FileReport>("file/report", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponse<VirusTotalNet.Results.v2.FileReport>("file/report", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace VirusTotalNet.v2
         /// so query the report at regular intervals until the result shows up and do not keep submitting the file over and over again.
         /// </summary>
         /// <param name="resourceList">SHA1, MD5 or SHA256 of the file. It can also be a scan ID of a previous scan.</param>
-        public override Task<IEnumerable<FileReport>> GetFileReportsAsync(IEnumerable<string> resourceList)
+        public override async Task<IEnumerable<FileReport>> GetFileReportsAsync(IEnumerable<string> resourceList)
         {
             resourceList = ResourcesHelper.ValidateResourcea(resourceList, ResourceType.AnyHash | ResourceType.ScanId);
 
@@ -156,7 +156,7 @@ namespace VirusTotalNet.v2
             values.Add("resource", string.Join(",", resources));
 
             //https://www.virustotal.com/vtapi/v2/file/report
-            return GetResponses<FileReport>("file/report", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponses<VirusTotalNet.Results.v2.FileReport>("file/report", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace VirusTotalNet.v2
         /// Note: Before performing your submission, you should retrieve the latest report on the URL.
         /// </summary>
         /// <param name="url">The URL to process.</param>
-        public override Task<UrlScanResult> ScanUrlAsync(string url)
+        public override async Task<UrlScanResult> ScanUrlAsync(string url)
         {
             url = ResourcesHelper.ValidateResourcea(url, ResourceType.URL);
 
@@ -173,7 +173,7 @@ namespace VirusTotalNet.v2
             values.Add("url", url);
 
             //https://www.virustotal.com/vtapi/v2/url/scan
-            return GetResponse<UrlScanResult>("url/scan", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponse<VirusTotalNet.Results.v2.UrlScanResult>("url/scan", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace VirusTotalNet.v2
         /// Note: Before performing your submission, you should retrieve the latest reports on the URLs.
         /// </summary>
         /// <param name="urls">The URLs to process.</param>
-        public override Task<IEnumerable<UrlScanResult>> ScanUrlsAsync(IEnumerable<string> urls)
+        public override async Task<IEnumerable<UrlScanResult>> ScanUrlsAsync(IEnumerable<string> urls)
         {
             urls = ResourcesHelper.ValidateResourcea(urls, ResourceType.URL);
 
@@ -195,7 +195,7 @@ namespace VirusTotalNet.v2
             values.Add("url", string.Join(Environment.NewLine, urlCast));
 
             //https://www.virustotal.com/vtapi/v2/url/scan
-            return GetResponses<UrlScanResult>("url/scan", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponses<VirusTotalNet.Results.v2.UrlScanResult>("url/scan", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace VirusTotalNet.v2
         /// </summary>
         /// <param name="url">The URL you wish to get the report on.</param>
         /// <param name="scanIfNoReport">Set to true if you wish VirusTotal to scan the URL if it is not present in the database.</param>
-        public override Task<UrlReport> GetUrlReportAsync(string url, bool scanIfNoReport = false)
+        public override async Task<UrlReport> GetUrlReportAsync(string url, bool scanIfNoReport = false)
         {
             url = ResourcesHelper.ValidateResourcea(url, ResourceType.URL | ResourceType.ScanId);
 
@@ -216,7 +216,7 @@ namespace VirusTotalNet.v2
                 values.Add("scan", "1");
 
             //Output
-            return GetResponse<UrlReport>("url/report", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponse<VirusTotalNet.Results.v2.UrlReport>("url/report", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace VirusTotalNet.v2
         /// </summary>
         /// <param name="urls">The URLs you wish to get the reports on.</param>
         /// <param name="scanIfNoReport">Set to true if you wish VirusTotal to scan the URLs if it is not present in the database.</param>
-        public override Task<IEnumerable<UrlReport>> GetUrlReportsAsync(IEnumerable<string> urls, bool scanIfNoReport = false)
+        public override async Task<IEnumerable<UrlReport>> GetUrlReportsAsync(IEnumerable<string> urls, bool scanIfNoReport = false)
         {
             urls = ResourcesHelper.ValidateResourcea(urls, ResourceType.URL);
 
@@ -242,30 +242,30 @@ namespace VirusTotalNet.v2
                 values.Add("scan", "1");
 
             //Output
-            return GetResponses<UrlReport>("url/report", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponses<VirusTotalNet.Results.v2.UrlReport>("url/report", HttpMethod.Post, CreateURLEncodedContent(values));
         }
 
         /// <summary>
         /// Gets a scan report from an IP
         /// </summary>
         /// <param name="ip">The IP you wish to get the report on.</param>
-        public override Task<IPReport> GetIPReportAsync(string ip)
+        public override async Task<IPReport> GetIPReportAsync(string ip)
         {
             ip = ResourcesHelper.ValidateResourcea(ip, ResourceType.IP);
 
-            return GetResponse<IPReport>("ip-address/report?apikey=" + _defaultValues["apikey"] + "&ip=" + ip, HttpMethod.Get, null);
+            return await GetResponse<VirusTotalNet.Results.v2.IPReport>("ip-address/report?apikey=" + _defaultValues["apikey"] + "&ip=" + ip, HttpMethod.Get, null);
         }
 
         /// <summary>
         /// Gets a scan report from a domain
         /// </summary>
         /// <param name="domain">The domain you wish to get the report on.</param>
-        public override Task<DomainReport> GetDomainReportAsync(string domain)
+        public override async Task<DomainReport> GetDomainReportAsync(string domain)
         {
             domain = ResourcesHelper.ValidateResourcea(domain, ResourceType.Domain);
 
             //Hack because VT thought it was a good idea to have this API call as GET
-            return GetResponse<DomainReport>("domain/report?apikey=" + _defaultValues["apikey"] + "&domain=" + domain, HttpMethod.Get, null);
+            return await GetResponse<VirusTotalNet.Results.v2.DomainReport>("domain/report?apikey=" + _defaultValues["apikey"] + "&domain=" + domain, HttpMethod.Get, null);
         }
 
         /// <summary>
@@ -273,14 +273,14 @@ namespace VirusTotalNet.v2
         /// </summary>
         /// <param name="resource">The MD5/SHA1/SHA256 hash or URL.</param>
         /// <param name="before">TODO</param>
-        public override Task<CommentResult> GetCommentAsync(string resource, DateTime? before = null)
+        public override async Task<CommentResult> GetCommentAsync(string resource, DateTime? before = null)
         {
             resource = ResourcesHelper.ValidateResourcea(resource, ResourceType.AnyHash | ResourceType.URL);
 
             //TODO: before
 
             //https://www.virustotal.com/vtapi/v2/comments/get
-            return GetResponse<CommentResult>("comments/get?apikey=" + _defaultValues["apikey"] + "&resource=" + resource, HttpMethod.Get, null);
+            return await GetResponse<VirusTotalNet.Results.v2.CommentResult>("comments/get?apikey=" + _defaultValues["apikey"] + "&resource=" + resource, HttpMethod.Get, null);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace VirusTotalNet.v2
         /// </summary>
         /// <param name="resource">The MD5/SHA1/SHA256 hash or URL.</param>
         /// <param name="comment">The comment you wish to add.</param>
-        public override Task<CreateCommentResult> CreateCommentAsync(string resource, string comment)
+        public override async Task<CreateCommentResult> CreateCommentAsync(string resource, string comment)
         {
             resource = ResourcesHelper.ValidateResourcea(resource, ResourceType.AnyHash | ResourceType.URL);
 
@@ -304,7 +304,7 @@ namespace VirusTotalNet.v2
             values.Add("comment", comment);
 
             //https://www.virustotal.com/vtapi/v2/comments/put
-            return GetResponse<CreateCommentResult>("comments/put", HttpMethod.Post, CreateURLEncodedContent(values));
+            return await GetResponse<VirusTotalNet.Results.v2.CreateCommentResult>("comments/put", HttpMethod.Post, CreateURLEncodedContent(values));
         }
     }
 }

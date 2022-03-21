@@ -15,9 +15,15 @@ namespace VirusTotalNet.Tests
         public async Task GetReportForKnownFile()
         {
             FileReport fileReport = await VirusTotal.GetFileReportAsync(TestData.EICARMalware);
-
-            //It should always be in the VirusTotal database.
-            Assert.Equal(FileReportResponseCode.Present, fileReport.ResponseCode);
+            if (fileReport is VirusTotalNet.Results.v2.FileReport fileReportv2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(FileReportResponseCode.Present, fileReportv2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(fileReport);
+            }
         }
 
         //[Fact]
@@ -34,8 +40,15 @@ namespace VirusTotalNet.Tests
 
             foreach (FileReport fileReport in results)
             {
-                //It should always be in the VirusTotal database.
-                Assert.Equal(FileReportResponseCode.Present, fileReport.ResponseCode);
+                if (fileReport is VirusTotalNet.Results.v2.FileReport fileReportv2)
+                {
+                    //It should always be in the VirusTotal database.
+                    Assert.Equal(FileReportResponseCode.Present, fileReportv2.ResponseCode);
+                }
+                else
+                {
+                    Assert.NotNull(fileReport);
+                }
             }
         }
 
@@ -47,8 +60,17 @@ namespace VirusTotalNet.Tests
 
             FileReport fileReport = await VirusTotal.GetFileReportAsync(TestData.GetRandomSHA1s(1).First());
 
-            //It should not be in the VirusTotal database already, which means it should return error.
-            Assert.Equal(FileReportResponseCode.NotPresent, fileReport.ResponseCode);
+            if (fileReport is VirusTotalNet.Results.v2.FileReport fileReportv2)
+            {
+                //It should not be in the VirusTotal database already, which means it should return error.
+                Assert.Equal(FileReportResponseCode.NotPresent, fileReportv2.ResponseCode);
+            }
+            else
+            {
+                Assert.Null(fileReport);
+            }
+
+
         }
 
         [Fact]
@@ -61,8 +83,15 @@ namespace VirusTotalNet.Tests
 
             foreach (FileReport fileReport in results)
             {
-                //It should never be in the VirusTotal database.
-                Assert.Equal(FileReportResponseCode.NotPresent, fileReport.ResponseCode);
+                if (fileReport is VirusTotalNet.Results.v2.FileReport fileReportv2)
+                {
+                    //It should never be in the VirusTotal database.
+                    Assert.Equal(FileReportResponseCode.NotPresent, fileReportv2.ResponseCode);
+                }
+                else
+                {
+                    Assert.Null(fileReport);
+                }
             }
         }
 
@@ -72,11 +101,20 @@ namespace VirusTotalNet.Tests
             //We ignore these fields due to unknown file
             IgnoreMissingJson(" / MD5", " / Permalink", " / Positives", " / scan_date", " / Scans", " / SHA1", " / SHA256", " / Total");
 
-            ScanResult result = await VirusTotal.ScanFileAsync(TestData.GetRandomFile(128, 1).First(), TestData.TestFileName);
+            byte[] file = TestData.GetRandomFile(128, 1).First();
+            ScanResult result = await VirusTotal.ScanFileAsync(file, TestData.TestFileName);
+            Assert.NotNull(result);
 
-            FileReport fileReport = await VirusTotal.GetFileReportAsync(result.ScanId);
-
-            Assert.Equal(FileReportResponseCode.Queued, fileReport.ResponseCode);
+            if (result is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                VirusTotalNet.Results.v2.FileReport fileReport = (VirusTotalNet.Results.v2.FileReport)await VirusTotal.GetFileReportAsync(scanResultV2.ScanId);
+                Assert.Equal(FileReportResponseCode.Queued, fileReport.ResponseCode);
+            }
+            else
+            {
+                FileReport fileReport = await VirusTotal.GetFileReportAsync(file);
+                Assert.NotNull(fileReport);
+            }
         }
 
         [Fact]
@@ -93,9 +131,15 @@ namespace VirusTotalNet.Tests
             VirusTotal.RestrictNumberOfResources = false;
 
             IEnumerable<FileReport> results = await VirusTotal.GetFileReportsAsync(TestData.GetRandomSHA1s(10));
-
-            //We only expect 4 as VT simply returns 4 results no matter the batch size.
-            Assert.Equal(VirusTotal.FileReportBatchSizeLimit, results.Count());
+            if (VirusTotal is VirusTotalNet.v2.VirusTotal)
+            {
+                //We only expect 4 as VT simply returns 4 results no matter the batch size.
+                Assert.Equal(VirusTotal.FileReportBatchSizeLimit, results.Count());
+            }
+            else
+            {
+                Assert.Equal(10, results.Count());
+            }
         }
     }
 }

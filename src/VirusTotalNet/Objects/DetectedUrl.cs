@@ -1,5 +1,6 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
+using VirusTotalNet.Internal.DateTimeParsers;
 
 namespace VirusTotalNet.Objects
 {
@@ -11,7 +12,8 @@ namespace VirusTotalNet.Objects
 
         public int Total { get; set; }
 
-        [JsonProperty("scan_date")]
+        [JsonProperty("scan_date", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(UnixTimeConverter))]
         public DateTime ScanDate { get; set; }
     }
 }

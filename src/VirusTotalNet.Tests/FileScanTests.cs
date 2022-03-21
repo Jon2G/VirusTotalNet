@@ -15,9 +15,15 @@ namespace VirusTotalNet.Tests
         public async Task ScanKnownFile()
         {
             ScanResult fileResult = await VirusTotal.ScanFileAsync(TestData.EICARMalware, TestData.EICARFilename);
-
-            //It should always be in the VirusTotal database.
-            Assert.Equal(ScanFileResponseCode.Queued, fileResult.ResponseCode);
+            if (fileResult is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(fileResult);
+            }
         }
 
         [Fact]
@@ -25,8 +31,15 @@ namespace VirusTotalNet.Tests
         {
             ScanResult fileResult = await VirusTotal.ScanFileAsync(TestData.TestFile, TestData.TestFileName);
 
-            //It should always be in the VirusTotal database.
-            Assert.Equal(ScanFileResponseCode.Queued, fileResult.ResponseCode);
+            if (fileResult is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(fileResult);
+            }
         }
 
         [Fact]
@@ -34,15 +47,30 @@ namespace VirusTotalNet.Tests
         {
             ScanResult fileResult = await VirusTotal.ScanFileAsync(TestData.GetRandomFile(128, 1).First(), TestData.TestFileName);
 
-            //It should never be in the VirusTotal database.
-            Assert.Equal(ScanFileResponseCode.Queued, fileResult.ResponseCode);
+            if (fileResult is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(fileResult);
+            }
         }
 
         [Fact]
         public async Task ScanSmallFile()
         {
             ScanResult fileResult = await VirusTotal.ScanFileAsync(new byte[1], TestData.TestFileName);
-            Assert.Equal(ScanFileResponseCode.Queued, fileResult.ResponseCode);
+            if (fileResult is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(fileResult);
+            }
         }
 
         [Fact]
@@ -51,7 +79,15 @@ namespace VirusTotalNet.Tests
             VirusTotal.Timeout = TimeSpan.FromSeconds(500);
             ScanResult result = await VirusTotal.ScanFileAsync(new byte[VirusTotal.FileSizeLimit], TestData.TestFileName);
 
-            Assert.Equal(ScanFileResponseCode.Queued, result.ResponseCode);
+            if (result is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(result);
+            }
         }
 
         [Fact]
@@ -67,7 +103,15 @@ namespace VirusTotalNet.Tests
             VirusTotal.Timeout = TimeSpan.FromSeconds(500);
             ScanResult result = await VirusTotal.ScanLargeFileAsync(new byte[VirusTotal.LargeFileSizeLimit], TestData.TestFileName);
 
-            Assert.Equal(ScanFileResponseCode.Queued, result.ResponseCode);
+            if (result is VirusTotalNet.Results.v2.ScanResult scanResultV2)
+            {
+                //It should always be in the VirusTotal database.
+                Assert.Equal(ScanFileResponseCode.Queued, scanResultV2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(result);
+            }
         }
 
         [Fact]

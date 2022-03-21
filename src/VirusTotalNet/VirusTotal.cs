@@ -13,7 +13,7 @@ namespace VirusTotalNet
         public static void Configure(string apiKey, JsonSerializerSettings settings = null)
         {
             _VirusTotalAPIV2 = new Lazy<IVirusTotalAPI>(() => new VirusTotalNet.v2.VirusTotal(apiKey, settings));
-            _VirusTotalAPIV3 = new Lazy<IVirusTotalAPI>(() => new VirusTotalNet.v2.VirusTotal(apiKey, settings));
+            _VirusTotalAPIV3 = new Lazy<IVirusTotalAPI>(() => new VirusTotalNet.v3.VirusTotal(apiKey, settings));
         }
     }
 }

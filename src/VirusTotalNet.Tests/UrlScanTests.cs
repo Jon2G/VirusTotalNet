@@ -13,8 +13,11 @@ namespace VirusTotalNet.Tests
         [Fact]
         public async Task ScanKnownUrl()
         {
-            UrlScanResult fileResult = await VirusTotal.ScanUrlAsync(TestData.KnownUrls.First());
-            Assert.Equal(UrlScanResponseCode.Queued, fileResult.ResponseCode);
+            VirusTotalNet.Results.UrlScanResult fileResult = await VirusTotal.ScanUrlAsync(TestData.KnownUrls.First());
+            if (fileResult is VirusTotalNet.Results.v2.UrlScanResult urlScanResultv2)
+                Assert.Equal(UrlScanResponseCode.Queued, urlScanResultv2.ResponseCode);
+            else
+                Assert.NotNull(fileResult);
         }
 
         [Fact]
@@ -24,7 +27,10 @@ namespace VirusTotalNet.Tests
 
             foreach (UrlScanResult urlScan in urlScans)
             {
-                Assert.Equal(UrlScanResponseCode.Queued, urlScan.ResponseCode);
+                if (urlScan is VirusTotalNet.Results.v2.UrlScanResult urlScanResultv2)
+                    Assert.Equal(UrlScanResponseCode.Queued, urlScanResultv2.ResponseCode);
+                else
+                    Assert.NotNull(urlScan);
             }
         }
 
@@ -32,7 +38,10 @@ namespace VirusTotalNet.Tests
         public async Task ScanUnknownUrl()
         {
             UrlScanResult fileResult = await VirusTotal.ScanUrlAsync(TestData.GetUnknownUrls(1).First());
-            Assert.Equal(UrlScanResponseCode.Queued, fileResult.ResponseCode);
+            if (fileResult is VirusTotalNet.Results.v2.UrlScanResult urlScanResultv2)
+                Assert.Equal(UrlScanResponseCode.Queued, urlScanResultv2.ResponseCode);
+            else
+                Assert.NotNull(fileResult);
         }
 
         [Fact]
@@ -42,7 +51,10 @@ namespace VirusTotalNet.Tests
 
             foreach (UrlScanResult urlScan in urlScans)
             {
-                Assert.Equal(UrlScanResponseCode.Queued, urlScan.ResponseCode);
+                if (urlScan is VirusTotalNet.Results.v2.UrlScanResult urlScanResultv2)
+                    Assert.Equal(UrlScanResponseCode.Queued, urlScanResultv2.ResponseCode);
+                else
+                    Assert.NotNull(urlScan);
             }
         }
 
@@ -52,9 +64,15 @@ namespace VirusTotalNet.Tests
             VirusTotal.RestrictNumberOfResources = false;
 
             IEnumerable<UrlScanResult> results = await VirusTotal.ScanUrlsAsync(TestData.GetUnknownUrls(50));
-
-            //We only expect 25 as VT simply returns 25 results no matter the batch size.
-            Assert.Equal(VirusTotal.UrlScanBatchSizeLimit, results.Count());
+            if (VirusTotal is VirusTotalNet.v2.VirusTotal)
+            {
+                //We only expect 25 as VT simply returns 25 results no matter the batch size.
+                Assert.Equal(VirusTotal.UrlScanBatchSizeLimit, results.Count());
+            }
+            else
+            {
+                Assert.Equal(50, results.Count());
+            }
         }
     }
 }

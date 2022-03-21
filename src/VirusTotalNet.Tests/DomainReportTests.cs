@@ -12,8 +12,11 @@ namespace VirusTotalNet.Tests
         [Fact]
         public async Task GetDomainReportKnownDomain()
         {
-            DomainReport report = await VirusTotal.GetDomainReportAsync(TestData.KnownDomains.First());
-            Assert.Equal(DomainResponseCode.Present, report.ResponseCode);
+            var report = await VirusTotal.GetDomainReportAsync(TestData.KnownDomains.First());
+            if (report is VirusTotalNet.Results.v2.DomainReport v2Report)
+                Assert.Equal(DomainResponseCode.Present, v2Report.ResponseCode);
+            Assert.NotNull(report);
+
         }
 
         //[Fact]
@@ -34,7 +37,9 @@ namespace VirusTotalNet.Tests
             IgnoreMissingJson(" / undetected_urls", " / Alexa category", " / Alexa domain info", " / Alexa rank", " / BitDefender category", " / BitDefender domain info", " / Categories", " / detected_communicating_samples", " / detected_downloaded_samples", " / detected_referrer_samples", " / detected_urls", " / domain_siblings", " / Dr.Web category", " / Forcepoint ThreatSeeker category", " / Opera domain info", " / Pcaps", " / Resolutions", " / subdomains", " / TrendMicro category", " / undetected_communicating_samples", " / undetected_downloaded_samples", " / undetected_referrer_samples", " / Websense ThreatSeeker category", " / Webutation domain info", " / whois", " / whois_timestamp", " / WOT domain info");
 
             DomainReport report = await VirusTotal.GetDomainReportAsync(TestData.GetUnknownDomains(1).First());
-            Assert.Equal(DomainResponseCode.NotPresent, report.ResponseCode);
+            if (report is VirusTotalNet.Results.v2.DomainReport v2Report)
+                Assert.Equal(DomainResponseCode.NotPresent, v2Report.ResponseCode);
+            Assert.NotNull(report);
         }
     }
 }

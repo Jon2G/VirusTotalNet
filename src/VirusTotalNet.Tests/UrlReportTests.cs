@@ -17,7 +17,14 @@ namespace VirusTotalNet.Tests
             IgnoreMissingJson("scans.CyRadar / Detail", "scans.DNS8 / Detail", "scans.NotMining / Detail", "scans.ADMINUSLabs / Detail", "scans.AlienVault / Detail", "scans.Antiy-AVL / Detail", "scans.AutoShun / Detail", "scans.Avira / Detail", "scans.Baidu-International / Detail", "scans.BitDefender / Detail", "scans.Blueliv / Detail", "scans.Certly / Detail", "scans.C-SIRT / Detail", "scans.CyberCrime / Detail", "scans.Emsisoft / Detail", "scans.ESET / Detail", "scans.Fortinet / Detail", "scans.FraudScore / Detail", "scans.FraudSense / Detail", "scans.G-Data / Detail", "scans.K7AntiVirus / Detail", "scans.Kaspersky / Detail", "scans.Malekal / Detail", "scans.Malwared / Detail", "scans.MalwarePatrol / Detail", "scans.Netcraft / Detail", "scans.Nucleon / Detail", "scans.OpenPhish / Detail", "scans.Opera / Detail", "scans.PhishLabs / Detail", "scans.Phishtank / Detail", "scans.Quttera / Detail", "scans.Rising / Detail", "scans.SecureBrain / Detail", "scans.securolytics / Detail", "scans.Sophos / Detail", "scans.Spam404 / Detail", "scans.StopBadware / Detail", "scans.Tencent / Detail", "scans.ThreatHive / Detail", "scans.Trustwave / Detail", "scans.URLQuery / Detail", "scans.Webutation / Detail", "scans.ZCloudsec / Detail", "scans.ZeroCERT / Detail", "scans.Zerofox / Detail", "scans.zvelo / Detail", "scans['AegisLab WebGuard'] / Detail", "scans['CLEAN MX'] / Detail", "scans['Comodo Site Inspector'] / Detail", "scans['desenmascara.me'] / Detail", "scans['Dr.Web'] / Detail", "scans['Forcepoint ThreatSeeker'] / Detail", "scans['Google Safebrowsing'] / Detail", "scans['Malware Domain Blocklist'] / Detail", "scans['Malwarebytes hpHosts'] / Detail", "scans['malwares.com URL checker'] / Detail", "scans['SCUMWARE.org'] / Detail", "scans['Sucuri SiteCheck'] / Detail", "scans['Virusdie External Site Scan'] / Detail", "scans['VX Vault'] / Detail", "scans['Web Security Guard'] / Detail", "scans['ZDB Zeus'] / Detail");
 
             UrlReport urlReport = await VirusTotal.GetUrlReportAsync(TestData.KnownUrls.First());
-            Assert.Equal(UrlReportResponseCode.Present, urlReport.ResponseCode);
+            if (urlReport is VirusTotalNet.Results.v2.UrlReport urlReportv2)
+            {
+                Assert.Equal(UrlReportResponseCode.Present, urlReportv2.ResponseCode);
+            }
+            else
+            {
+                Assert.NotNull(urlReport);
+            }
         }
 
         [Fact]
@@ -29,7 +36,14 @@ namespace VirusTotalNet.Tests
 
             foreach (UrlReport urlReport in urlReports)
             {
-                Assert.Equal(UrlReportResponseCode.Present, urlReport.ResponseCode);
+                if (urlReport is VirusTotalNet.Results.v2.UrlReport urlReportv2)
+                {
+                    Assert.Equal(UrlReportResponseCode.Present, urlReportv2.ResponseCode);
+                }
+                else
+                {
+                    Assert.NotNull(urlReport);
+                }
             }
         }
 
@@ -39,10 +53,17 @@ namespace VirusTotalNet.Tests
             IgnoreMissingJson(" / filescan_id", " / Permalink", " / Positives", " / scan_date", " / scan_id", " / Scans", " / Total", " / URL");
 
             UrlReport urlReport = await VirusTotal.GetUrlReportAsync(TestData.GetUnknownUrls(1).First());
-            Assert.Equal(UrlReportResponseCode.NotPresent, urlReport.ResponseCode);
+            if (urlReport is VirusTotalNet.Results.v2.UrlReport urlReportv2)
+            {
+                Assert.Equal(UrlReportResponseCode.NotPresent, urlReportv2.ResponseCode);
 
-            //We are not supposed to have a scan id
-            Assert.True(string.IsNullOrWhiteSpace(urlReport.ScanId));
+                //We are not supposed to have a scan id
+                Assert.True(string.IsNullOrWhiteSpace(urlReportv2.ScanId));
+            }
+            else
+            {
+                Assert.Null(urlReport);
+            }
         }
 
         [Fact]
@@ -54,7 +75,14 @@ namespace VirusTotalNet.Tests
 
             foreach (UrlReport urlReport in urlReports)
             {
-                Assert.Equal(UrlReportResponseCode.NotPresent, urlReport.ResponseCode);
+                if (urlReport is VirusTotalNet.Results.v2.UrlReport urlReportv2)
+                {
+                    Assert.Equal(UrlReportResponseCode.NotPresent, urlReportv2.ResponseCode);
+                }
+                else
+                {
+                    Assert.Null(urlReport);
+                }
             }
         }
 
@@ -64,12 +92,17 @@ namespace VirusTotalNet.Tests
             IgnoreMissingJson(" / filescan_id", " / Positives", " / Scans", " / Total");
 
             UrlReport urlReport = await VirusTotal.GetUrlReportAsync(TestData.GetUnknownUrls(1).First(), true);
+            if (urlReport is VirusTotalNet.Results.v2.UrlReport urlReportv2)
+            {
+                Assert.Equal(UrlReportResponseCode.Present, urlReportv2.ResponseCode);
 
-            //It return "present" because we told it to scan it
-            Assert.Equal(UrlReportResponseCode.Present, urlReport.ResponseCode);
-
-            //We are supposed to have a scan id because we scanned it
-            Assert.False(string.IsNullOrWhiteSpace(urlReport.ScanId));
+                //We are not supposed to have a scan id
+                Assert.True(string.IsNullOrWhiteSpace(urlReportv2.ScanId));
+            }
+            else
+            {
+                Assert.NotNull(urlReport);
+            }
         }
 
         [Fact]
@@ -86,9 +119,15 @@ namespace VirusTotalNet.Tests
             VirusTotal.RestrictNumberOfResources = false;
 
             IEnumerable<UrlReport> results = await VirusTotal.GetUrlReportsAsync(TestData.GetUnknownUrls(5));
-
-            //We only expect 4 as VT simply returns 4 results no matter the batch size.
-            Assert.Equal(VirusTotal.UrlReportBatchSizeLimit, results.Count());
+            if (VirusTotal is VirusTotalNet.v2.VirusTotal)
+            {
+                //We only expect 4 as VT simply returns 4 results no matter the batch size.
+                Assert.Equal(VirusTotal.UrlReportBatchSizeLimit, results.Count());
+            }
+            else
+            {
+                Assert.Equal(5, results.Count());
+            }
         }
     }
 }

@@ -89,7 +89,7 @@ namespace VirusTotalNet.APIVersions
         /// <summary>
         /// Set to false to use HTTP instead of HTTPS. HTTPS is used by default.
         /// </summary>
-        public bool UseTLS { get; set; } = true;
+        public virtual bool UseTLS { get; set; } = true;
 
         /// <summary>
         /// The user-agent to use when doing queries
@@ -187,9 +187,9 @@ namespace VirusTotalNet.APIVersions
             }
         }
 
-        protected async Task<T> GetResponse<T>(string url, HttpMethod method, HttpContent content)
+        protected virtual async Task<T> GetResponse<T>(string url, HttpMethod method, HttpContent content, Dictionary<string, string> Headers = null) where T : class
         {
-            HttpResponseMessage response = await SendRequest(url, method, content).ConfigureAwait(false);
+            HttpResponseMessage response = await SendRequest(url, method, content, Headers).ConfigureAwait(false);
 
             using (Stream responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
             using (StreamReader sr = new StreamReader(responseStream, Encoding.UTF8))
@@ -203,13 +203,18 @@ namespace VirusTotalNet.APIVersions
             }
         }
 
-        protected async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, HttpContent content)
+        protected async Task<HttpResponseMessage> SendRequest(string url, HttpMethod method, HttpContent content, Dictionary<string, string> Headers = null)
         {
             //We need this check because sometimes url is a full url and sometimes it is just an url segment
             if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 url = (UseTLS ? "https://" : "http://") + _apiUrl + url;
 
             HttpRequestMessage request = new HttpRequestMessage(method, url);
+            if (Headers is not null)
+                foreach (KeyValuePair<string, string> header in Headers)
+                {
+                    request.Headers.Add(header.Key, header.Value);
+                }
             request.Content = content;
 
             OnHTTPRequestSending?.Invoke(request);
@@ -226,6 +231,12 @@ namespace VirusTotalNet.APIVersions
 
             if (response.StatusCode == HttpStatusCode.RequestEntityTooLarge)
                 throw new SizeLimitException(FileSizeLimit);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new ResourceNotFoundException($"Resource not found at:{url}");
+
+            if (response.StatusCode == HttpStatusCode.Conflict)
+                throw new ResourceConflictException($"Request has a conflict at:{url}");
 
             if (response.StatusCode != HttpStatusCode.OK)
                 throw new Exception("API gave error code " + response.StatusCode);
@@ -260,7 +271,7 @@ namespace VirusTotalNet.APIVersions
             return content;
         }
 
-        protected HttpContent CreateFileContent(Stream stream, string fileName, bool includeSize = true)
+        protected virtual HttpContent CreateFileContent(Stream stream, string fileName, bool includeSize = true)
         {
             StreamContent fileContent = new StreamContent(stream);
 
@@ -276,7 +287,7 @@ namespace VirusTotalNet.APIVersions
             return fileContent;
         }
 
-        protected HttpContent CreateURLEncodedContent(IDictionary<string, string> values)
+        protected virtual HttpContent CreateURLEncodedContent(IDictionary<string, string> values)
         {
             return new CustomURLEncodedContent(_defaultValues.Concat(values));
         }
