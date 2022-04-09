@@ -95,7 +95,8 @@ namespace VirusTotalNet.Helpers
         {
             if (!file.Exists)
                 throw new FileNotFoundException("File not found.", file.FullName);
-
+            if (file.Length <= 0)
+                return string.Empty;
             using (FileStream stream = file.OpenRead())
                 return GetMd5(stream);
         }

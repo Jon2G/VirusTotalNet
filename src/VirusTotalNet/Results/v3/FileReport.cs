@@ -34,7 +34,7 @@ namespace VirusTotalNet.Results.v3
         [JsonProperty("total_votes")]
         public TotalVotes TotalVotes { get; set; }
         [JsonProperty("size")]
-        public int Size { get; set; }
+        public long Size { get; set; }
         [JsonProperty("popular_threat_classification")]
         public PopularThreatClassification PopularThreatClassification { get; set; }
         [JsonProperty("last_submission_date", NullValueHandling = NullValueHandling.Ignore)]
