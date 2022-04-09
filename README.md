@@ -41,3 +41,4 @@ For more examples, take a look at the VirusTotal.Examples included in the projec
 ### Contributors
 * [keithjjones](https://github.com/keithjjones)
 * [ivandrofly](https://github.com/ivandrofly)
+* [Jon2G](https://github.com/Jon2G)
